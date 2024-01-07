@@ -2,7 +2,7 @@ import Modal from 'react-modal';
 
 Modal.setAppElement('#root');
 
-export const ModalForm = ({ modalIsOpen, closeModal, largeImg, tags }) => {
+export const ModalDesign  = ({ modalIsOpen, closeModal, largeImg, tags }) => {
   return (
     <Modal
       isOpen={modalIsOpen}

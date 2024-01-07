@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react';
 import css from './ImageGalleryItem.module.css';
-import { ModalForm, MyModal } from 'components/Modal/Modal';
+import { ModalDesign } from 'components/Modal/Modal';
 
 export class ImageGalleryItem extends PureComponent {
   state = {
@@ -31,7 +31,7 @@ export class ImageGalleryItem extends PureComponent {
               />
             </li>
             {this.state.showModal && (
-              <ModalForm
+              <ModalDesign
                 modalIsOpen={this.state.showModal}
                 closeModal={this.onCloseModal}
                 largeImg={this.state.largeImageURL}
