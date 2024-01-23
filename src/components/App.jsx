@@ -1,85 +1,79 @@
-import React, { PureComponent } from 'react';
-import { InfinitySpin } from 'react-loader-spinner';
+import React, { useState, useEffect } from 'react';
+import { Triangle } from 'react-loader-spinner';
 import { Searchbar } from './Searchbar/Searchbar';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 import * as ImageService from '../service/images';
-import { ImageGalleryItem } from './ImageGalleryItem/ImageGelleryItem';
+import { ImageGalleryItem } from '../components/ImageGalleryItem/ImageGelleryItem'
 import { Button } from './Button/Button';
 
-export class App extends PureComponent {
-  state = {
-    searchName: '',
-    page: 1,
-    images: [],
-    isLoading: false,
-    error: null,
-    isEmpty: false,
-    isVisible: false,
+export const App = () => {
+  const [searchName, setSearchName] = useState('');
+  const [page, setPage] = useState(1);
+  const [images, setImages] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [isEmpty, setIsEmpty] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+
+  const handlerOnSubmit = value => {
+    setSearchName(value);
+    setPage(1);
+    setImages([]);
+    setError(null);
+    setIsEmpty(false);
   };
-  handlerOnSubmit = value => {
-    this.setState({
-      searchName: value,
-      page: 1,
-      images: [],
-      error: null,
-      isEmpty: false,
-    });
-  };
-  getPhotos = async (searchName, page) => {
+  const getPhotos = async (searchName, page) => {
     if (!searchName) return;
-    this.setState({ isLoading: true });
+    setIsLoading(true);
     try {
       const { hits, totalHits } = await ImageService.getImages(
         searchName,
         page
       );
       if (hits.length === 0) {
-        this.setState({ isEmpty: true });
+        setIsEmpty(true);
       }
-      this.setState(prevState => ({
-        images: [...prevState.images, ...hits],
-        isVisible: page < Math.ceil(totalHits / 12),
-      }));
+
+      setImages(prevState => [...prevState, ...hits]);
+      setIsVisible(page < Math.ceil(totalHits / 12));
     } catch (error) {
-      this.setState({ error: alert(`OOPS! Something went wrong: ${error}`) });
+      setError(alert(`OOPS! Something went wrong: ${error}`));
     } finally {
-      this.setState({ isLoading: false });
+      setIsLoading(false);
     }
   };
-  componentDidUpdate(prevProps, prevState) {
-    const { searchName, page } = this.state;
-    if (prevState.searchName !== searchName || prevState.page !== page) {
-      this.getPhotos(searchName, page);
-    }
-  }
-  onLoadMore = () => {
-    this.setState(prevState => ({ page: prevState.page + 1, isLoading: true }));
+  useEffect(() => {
+    getPhotos(searchName, page);
+  }, [searchName, page]);
+  const onLoadMore = () => {
+    setPage(prevState => prevState + 1);
+    setIsLoading(true);
   };
 
-  render() {
-    const { images, isVisible, isEmpty, error, isLoading } = this.state;
-    return (
-      <>
-        <Searchbar onSubmit={this.handlerOnSubmit} />
-        {isEmpty && <h2>Sorry, there are no images...</h2>}
-        {error && <h2>Something went wrong - {error}</h2>}
+  return (
+    <>
+      <Searchbar onSubmit={handlerOnSubmit} />
+      {isEmpty && <h2>Sorry, there are no images...</h2>}
+      {error && <h2>Something went wrong - {error}</h2>}
 
-        <ImageGallery children={<ImageGalleryItem images={images} />} />
-        {isVisible && !isLoading && images.length > 0 && (
-          <Button
-            onClick={this.onLoadMore}
-            children={isLoading ? 'Loading' : 'Load more'}
-          />
-        )}
-        {isLoading && (
-          <InfinitySpin
-            visible={true}
-            width="200"
-            color="#4fa94d"
-            ariaLabel="infinity-spin-loading"
-          />
-        )};
-      </>
-    );
-  }
-}
+      <ImageGallery children={<ImageGalleryItem images={images} />} />
+      {isVisible && !isLoading && images.length > 0 && (
+        <Button
+          onClick={onLoadMore}
+          children={isLoading ? 'Loading' : 'Load more'}
+        />
+      )}
+      {isLoading && (
+        <Triangle
+          height="80"
+          width="80"
+          color="#4fa94d"
+          ariaLabel="triangle-loading"
+          wrapperStyle={{ marginLeft: '50%' }}
+          wrapperClassName=""
+          visible={true}
+        />
+      )}
+    </>
+  );
+};

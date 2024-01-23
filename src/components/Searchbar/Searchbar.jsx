@@ -1,39 +1,35 @@
-import React, { PureComponent } from 'react';
+import React, { useState } from 'react';
 import css from './Searchbar.module.css';
 
-export class Searchbar extends PureComponent {
-  state = {
-    searchValue: '',
-  };
-  handlerOnChange = event => {
-    this.setState({ searchValue: event.currentTarget.value });
-  };
-  handlerOnSubmit = event => {
-    event.preventDefault();
-    if (!this.state.searchValue.trim())
-      return alert('Please, enter your request');
-    this.props.onSubmit(this.state.searchValue);
-    this.setState({ searchValue: '' });
-  };
-  render() {
-    return (
-      <header className={css.searchbar}>
-        <form className={css.searchForm} onSubmit={this.handlerOnSubmit}>
-          <button type="submit" className={css.searchFormButton}>
-            <span className={css.searchFormButtonLabel}>Search</span>
-          </button>
+export const Searchbar = ({ onSubmit }) => {
+  const [searchValue, setSearchValue] = useState('');
 
-          <input
-            onChange={this.handlerOnChange}
-            value={this.state.searchValue}
-            className={css.searchFormInput}
-            type="text"
-            autoComplete="off"
-            autoFocus
-            placeholder="Search images and photos"
-          />
-        </form>
-      </header>
-    );
-  }
-}
+  const handlerOnChange = event => {
+    setSearchValue(event.currentTarget.value);
+  };
+  const handlerOnSubmit = event => {
+    event.preventDefault();
+    if (!searchValue.trim()) return alert('Please, enter your request');
+    onSubmit(searchValue);
+    setSearchValue('');
+  };
+  return (
+    <header className={css.searchbar}>
+      <form className={css.searchForm} onSubmit={handlerOnSubmit}>
+        <button type="submit" className={css.searchFormButton}>
+          <span className={css.searchFormButtonLabel}>Search</span>
+        </button>
+
+        <input
+          onChange={handlerOnChange}
+          value={searchValue}
+          className={css.searchFormInput}
+          type="text"
+          autoComplete="off"
+          autoFocus
+          placeholder="Search images and photos"
+        />
+      </form>
+    </header>
+  );
+};
